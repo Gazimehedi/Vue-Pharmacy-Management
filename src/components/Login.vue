@@ -5,11 +5,22 @@
         <img class="login-card__icon" src="/img/lock.png" alt="" />
         <h2>Login</h2>
       </div>
-      <form action="#">
+      <form action="#" @submit.prevent="handleSubmit">
         <label for="email" class="block mt-3">Email</label>
-        <input type="email" placeholder="Email" />
+        <input
+          type="email"
+          placeholder="Email"
+          v-model="formData.email"
+          required
+        />
         <label for="password" class="block mt-3">Password</label>
-        <input type="password" placeholder="Password" />
+        <input
+          type="password"
+          placeholder="Password"
+          v-model="formData.password"
+          required
+          ref="password"
+        />
         <button type="submit" class="w-100 mt-3">Login</button>
         <div class="d-flex jc-between mt-3">
           <div>
@@ -27,7 +38,38 @@
   </div>
 </template>
 <script>
-export default {};
+import TheToast from "./TheToast.vue";
+export default {
+  data: () => ({
+    formData: {
+      email: "",
+      password: "",
+    },
+  }),
+  methods: {
+    handleSubmit() {
+      if (!this.formData.email) {
+        // alert("Email cannot be empty!");
+        this.$eventBus.emit("toast", {
+          type: "Error",
+          message: "Email cannot be empty!",
+        });
+        return;
+      }
+      if (this.formData.password.length < 6) {
+        // alert("Password must be at least 6 characters long!");
+        this.$eventBus.emit("toast", {
+          type: "Error",
+          message: "Password must be at least 6 characters long!",
+        });
+        this.$refs.password.focus();
+        return;
+      }
+      console.log(this.formData);
+    },
+  },
+  components: { TheToast },
+};
 </script>
 <style>
 .box {
