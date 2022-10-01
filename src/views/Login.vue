@@ -80,6 +80,8 @@ export default {
             type: res.data.status,
             message: res.data.message,
           });
+          localStorage.setItem("accessToken", res.data.token);
+          this.$router.push("/dashboard");
         })
         .catch((err) => {
           this.$eventBus.emit("toast", {

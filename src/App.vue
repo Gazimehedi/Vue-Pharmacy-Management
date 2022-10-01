@@ -1,5 +1,6 @@
 <template>
-  <Login></Login>
+  <!-- <Login></Login> -->
+  <router-view></router-view>
   <!-- <div class="toasts"> -->
   <TransitionGroup name="slide-left" tag="div" class="toasts">
     <TheToast
@@ -13,7 +14,7 @@
 </template>
 <script>
 import TheToast from "./components/TheToast.vue";
-import Login from "./views/Login.vue";
+// import Login from "./views/Login.vue";
 export default {
   data: () => ({
     toasts: [
@@ -27,7 +28,7 @@ export default {
       // },
     ],
   }),
-  components: { Login, TheToast },
+  components: { TheToast },
   mounted() {
     this.$eventBus.on("toast", (data) => {
       // console.log(data);
