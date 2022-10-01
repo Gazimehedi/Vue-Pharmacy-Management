@@ -6,11 +6,11 @@
         <h2>Login</h2>
       </div>
       <form action="#" @submit.prevent="handleSubmit">
-        <label for="email" class="block mt-3">Email</label>
+        <label for="username" class="block mt-3">username</label>
         <input
-          type="email"
-          placeholder="Email"
-          v-model="formData.email"
+          type="text"
+          placeholder="username"
+          v-model="formData.username"
           required
         />
         <label for="password" class="block mt-3">Password</label>
@@ -21,7 +21,11 @@
           required
           ref="password"
         />
-        <button type="submit" class="w-100 mt-3">Login</button>
+        <!-- <p class="text-center mt-3" v-if="logingIn">loging...</p>
+        <button type="submit" class="w-100 mt-3" v-else>Login</button> -->
+        <TheButton class="mt-3" :block="true" :loding="logingIn"
+          >Login</TheButton
+        >
         <div class="d-flex jc-between mt-3">
           <div>
             <label>
@@ -38,21 +42,24 @@
   </div>
 </template>
 <script>
-import TheToast from "./TheToast.vue";
+import axios from "axios";
+import TheButton from "../components/TheButton.vue";
+import TheToast from "../components/TheToast.vue";
 export default {
   data: () => ({
     formData: {
-      email: "",
+      username: "",
       password: "",
     },
+    logingIn: false,
   }),
   methods: {
     handleSubmit() {
-      if (!this.formData.email) {
-        // alert("Email cannot be empty!");
+      if (!this.formData.username) {
+        // alert("username cannot be empty!");
         this.$eventBus.emit("toast", {
           type: "Error",
-          message: "Email cannot be empty!",
+          message: "Username cannot be empty!",
         });
         return;
       }
@@ -65,10 +72,37 @@ export default {
         this.$refs.password.focus();
         return;
       }
-      console.log(this.formData);
+      this.logingIn = true;
+      axios
+        .post("http://127.0.0.1:8000/api/login", this.formData)
+        .then((res) => {
+          this.$eventBus.emit("toast", {
+            type: res.data.status,
+            message: res.data.message,
+          });
+        })
+        .catch((err) => {
+          this.$eventBus.emit("toast", {
+            type: err.response.data.status,
+            message: err.response.data.message,
+          });
+          // console.log(err.response.data);
+        })
+        .finally(() => {
+          this.logingIn = false;
+        });
+      // axios
+      //   .get("http://localhost:8000/")
+      //   .then((res) => {
+      //     console.log(res);
+      //   })
+      //   .catch((err) => {
+      //     console.log(err);
+      //   });
+      // console.log(this.formData);
     },
   },
-  components: { TheToast },
+  components: { TheToast, TheButton },
 };
 </script>
 <style>

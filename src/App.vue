@@ -1,17 +1,19 @@
 <template>
   <Login></Login>
-  <div class="toasts">
+  <!-- <div class="toasts"> -->
+  <TransitionGroup name="slide-left" tag="div" class="toasts">
     <TheToast
       v-for="(toast, i) in toasts"
       :key="i"
       :toastType="toast.type"
       :message="toast.message"
     ></TheToast>
-  </div>
+  </TransitionGroup>
+  <!-- </div> -->
 </template>
 <script>
-import Login from "./components/Login.vue";
 import TheToast from "./components/TheToast.vue";
+import Login from "./views/Login.vue";
 export default {
   data: () => ({
     toasts: [
@@ -42,4 +44,14 @@ export default {
   },
 };
 </script>
-<style></style>
+<style>
+.slide-left-enter-active,
+.slide-left-leave-active {
+  transition: all 0.25s ease;
+}
+.slide-left-enter-from,
+.slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(100px);
+}
+</style>
