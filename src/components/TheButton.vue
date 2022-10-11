@@ -1,5 +1,11 @@
 <template>
-  <div class="the-button" :class="{ 'the-button--block': block }">
+  <div
+    class="the-button"
+    :class="{
+      'the-button--block': block,
+      'the-button--gray': color === 'gray',
+    }"
+  >
     <button><slot></slot></button>
     <div class="the-button__loading" v-if="loding">
       <img src="/img/spinner.gif" alt="" />
@@ -16,6 +22,10 @@ export default {
     loding: {
       type: Boolean,
       defalut: false,
+    },
+    color: {
+      type: String,
+      defalut: "none",
     },
   },
 };
@@ -66,5 +76,13 @@ export default {
 
 .the-button__loading img {
   width: 25px;
+}
+.the-button--gray button {
+  background-color: #707070;
+  border-color: #707070;
+}
+.the-button--gray button:hover {
+  background-color: #707070;
+  border-color: #707070;
 }
 </style>

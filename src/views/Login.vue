@@ -74,13 +74,13 @@ export default {
       }
       this.logingIn = true;
       axios
-        .post("http://127.0.0.1:8000/api/login", this.formData)
+        .post("http://127.0.0.1:8000/api/auth/login", this.formData)
         .then((res) => {
           this.$eventBus.emit("toast", {
             type: res.data.status,
             message: res.data.message,
           });
-          localStorage.setItem("accessToken", res.data.token);
+          localStorage.setItem("accessToken", "Bearer" + res.data.access_token);
           this.$router.push("/dashboard");
         })
         .catch((err) => {

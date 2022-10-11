@@ -3,7 +3,8 @@
     <h2>Vendors</h2>
     <TheButton @click="showModal = true">Add New</TheButton>
   </div>
-  <table class="mt-3">
+  <div class="text-center" v-if="gettingVendors">Looding...</div>
+  <table class="mt-3" v-else>
     <thead>
       <tr>
         <th>Name</th>
@@ -12,14 +13,24 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="i in 9" :key="i">
-        <td>name</td>
-        <td>description</td>
+      <tr v-for="vendor in vendors" :key="vendor.name">
+        <td>{{ vendor.name }}</td>
+        <td>{{ vendor.description }}</td>
         <td>
-          <img src="/img/edit.png" alt="" class="action-icon" />
+          <img
+            src="/img/edit.png"
+            @click="
+              editItem = vendor;
+              showEditModal = true;
+            "
+            class="action-icon"
+          />
           <img
             src="/img/trash.png"
-            alt=""
+            @click="
+              editItem = vendor;
+              showDeleteModal = true;
+            "
             class="action-icon action-icon--delete ml-3"
           />
         </td>
@@ -47,6 +58,43 @@
       <TheButton class="mt-4 w-100" :loding="looding">Add</TheButton>
     </form>
   </TheModal>
+  <TheModal v-model="showEditModal" heading="Edit Vendor">
+    <form @submit.prevent="updateVendor">
+      <label class="block">Vandor Name</label>
+      <input
+        type="text"
+        class="w-100 mt-1"
+        placeholder="Enter vendor name"
+        v-model.lazy="editItem.name"
+        required
+      />
+      <label class="block mt-3">Vandor Description</label>
+      <input
+        type="text"
+        class="w-100 mt-1"
+        placeholder="Enter vendor description"
+        v-model.lazy="editItem.description"
+        required
+      />
+      <TheButton class="mt-4 w-100" :loding="editing">Save change</TheButton>
+    </form>
+  </TheModal>
+  <TheModal v-model="showDeleteModal" heading="Are you sure?">
+    <p>
+      Do you really want to delete <strong>{{ editItem.name }}</strong>
+    </p>
+    <TheButton
+      @click="
+        deleteVendor();
+        showDeleteModal = false;
+      "
+      class="mt-4"
+      >Yes</TheButton
+    >
+    <TheButton @click="showDeleteModal = false" class="ml-2" color="gray"
+      >No</TheButton
+    >
+  </TheModal>
 </template>
 <script>
 import axios from "axios";
@@ -61,20 +109,29 @@ export default {
       description: "",
     },
     looding: false,
+    vendors: [],
+    gettingVendors: false,
+    showEditModal: false,
+    editItem: {},
+    editing: false,
+    showDeleteModal: false,
+    deleting: false,
   }),
   components: {
     TheButton,
     TheModal,
+  },
+  mounted() {
+    this.allVendors();
   },
   methods: {
     resetForm() {
       this.newVendor = { name: "", description: "" };
     },
     addVendor() {
-      // console.log(this.newVendor);
       this.looding = true;
       axios
-        .post("http://127.0.0.1:8000/api/vendor/create", this.newVendor, {
+        .post("http://127.0.0.1:8000/api/auth/vendor/create", this.newVendor, {
           headers: {
             authorization: localStorage.getItem("accessToken"),
           },
@@ -85,6 +142,7 @@ export default {
             type: res.data.status,
             message: res.data.message,
           });
+          this.allVendors();
           this.resetForm();
         })
         .catch((err) => {
@@ -96,6 +154,95 @@ export default {
         })
         .finally(() => {
           this.looding = false;
+        });
+    },
+    updateVendor() {
+      this.editing = true;
+      this.showEditModal = false;
+      axios
+        .post(
+          "http://127.0.0.1:8000/api/auth/vendor/update/" + this.editItem.id,
+          this.editItem,
+          {
+            headers: {
+              authorization: localStorage.getItem("accessToken"),
+            },
+          }
+        )
+        .then((res) => {
+          // console.log(res);
+          this.$eventBus.emit("toast", {
+            type: res.data.status,
+            message: res.data.message,
+          });
+          // this.resetForm();
+          this.allVendors();
+        })
+        .catch((err) => {
+          // console.log(err);
+          this.$eventBus.emit("toast", {
+            type: "Error",
+            message: err.response.data.message,
+          });
+          this.allVendors();
+        })
+        .finally(() => {
+          this.editing = false;
+        });
+    },
+    deleteVendor() {
+      this.deleting = true;
+      this.showDeleteModal = false;
+      axios
+        .delete(
+          "http://127.0.0.1:8000/api/auth/vendor/delete/" + this.editItem.id,
+          {
+            headers: {
+              authorization: localStorage.getItem("accessToken"),
+            },
+          }
+        )
+        .then((res) => {
+          // console.log(res);
+          this.$eventBus.emit("toast", {
+            type: res.data.status,
+            message: res.data.message,
+          });
+          // this.resetForm();
+          this.allVendors();
+        })
+        .catch((err) => {
+          // console.log(err);
+          this.$eventBus.emit("toast", {
+            type: "Error",
+            message: err.response.data.message,
+          });
+        })
+        .finally(() => {
+          this.editing = false;
+        });
+    },
+    allVendors() {
+      this.gettingVendors = true;
+      axios
+        .get("http://127.0.0.1:8000/api/auth/vendors", {
+          headers: {
+            authorization: localStorage.getItem("accessToken"),
+          },
+        })
+        .then((res) => {
+          // console.log(res);
+          this.vendors = res.data.data;
+        })
+        .catch((err) => {
+          // console.log(err);
+          this.$eventBus.emit("toast", {
+            type: "Error",
+            message: err.response.data.message,
+          });
+        })
+        .finally(() => {
+          this.gettingVendors = false;
         });
     },
   },
