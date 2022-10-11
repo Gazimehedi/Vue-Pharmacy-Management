@@ -154,11 +154,11 @@ export default {
         })
         .finally(() => {
           this.looding = false;
+          this.showModal = false,
         });
     },
     updateVendor() {
       this.editing = true;
-      this.showEditModal = false;
       axios
         .post(
           "http://127.0.0.1:8000/api/auth/vendor/update/" + this.editItem.id,
@@ -188,11 +188,11 @@ export default {
         })
         .finally(() => {
           this.editing = false;
+          this.showEditModal = false;
         });
     },
     deleteVendor() {
       this.deleting = true;
-      this.showDeleteModal = false;
       axios
         .delete(
           "http://127.0.0.1:8000/api/auth/vendor/delete/" + this.editItem.id,
@@ -219,7 +219,8 @@ export default {
           });
         })
         .finally(() => {
-          this.editing = false;
+          this.deleting = false;
+          this.showDeleteModal = false;
         });
     },
     allVendors() {
