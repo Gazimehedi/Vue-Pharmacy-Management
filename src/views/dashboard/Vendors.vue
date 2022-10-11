@@ -154,7 +154,7 @@ export default {
         })
         .finally(() => {
           this.looding = false;
-          this.showModal = false,
+          this.showModal = false;
         });
     },
     updateVendor() {
