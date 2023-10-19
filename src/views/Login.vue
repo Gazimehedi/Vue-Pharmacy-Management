@@ -45,6 +45,7 @@
 import axios from "axios";
 import TheButton from "../components/TheButton.vue";
 import TheToast from "../components/TheToast.vue";
+import { showErrorMessage, showSuccessMessage } from "../utils/functions";
 export default {
   data: () => ({
     formData: {
@@ -56,19 +57,11 @@ export default {
   methods: {
     handleSubmit() {
       if (!this.formData.username) {
-        // alert("username cannot be empty!");
-        this.$eventBus.emit("toast", {
-          type: "Error",
-          message: "Username cannot be empty!",
-        });
+        showErrorMessage("Username cannot be empty!");
         return;
       }
       if (this.formData.password.length < 6) {
-        // alert("Password must be at least 6 characters long!");
-        this.$eventBus.emit("toast", {
-          type: "Error",
-          message: "Password must be at least 6 characters long!",
-        });
+        showErrorMessage("Password must be at least 6 characters long!");
         this.$refs.password.focus();
         return;
       }
@@ -76,19 +69,20 @@ export default {
       axios
         .post("http://127.0.0.1:8000/api/auth/login", this.formData)
         .then((res) => {
-          this.$eventBus.emit("toast", {
-            type: res.data.status,
-            message: res.data.message,
-          });
+          if(res.data.status === 'success'){
+            showSuccessMessage(res.data.message);
+          }else{
+            showErrorMessage(res.data.message);
+          }
+          // this.$eventBus.emit("toast", {
+          //   type: res.data.status,
+          //   message: res.data.message,
+          // });
           localStorage.setItem("accessToken", "Bearer" + res.data.access_token);
           this.$router.push("/dashboard");
         })
         .catch((err) => {
-          this.$eventBus.emit("toast", {
-            type: err.response.data.status,
-            message: err.response.data.message,
-          });
-          // console.log(err.response.data);
+          showErrorMessage(err.response.data.message);
         })
         .finally(() => {
           this.logingIn = false;
@@ -188,27 +182,27 @@ button {
   animation: showhide 1s ease-in;
   /* transition: all 0.5s; */
 }
-.showhide-enter-from {
-  /* opacity: 0;
-    transform: scale(0.5); */
+/* .showhide-enter-from {
+  opacity: 0;
+    transform: scale(0.5);
 }
 
 .showhide-enter-to {
-  /* opacity: 1;
-    transform: scale(1); */
-}
+  opacity: 1;
+    transform: scale(1);
+} */
 
 .showhide-leave-active {
   animation: showhide 1s ease-in reverse;
   /* transition: all 0.5s; */
 }
-.showhide-leave-from {
-  /* opacity: 1;
-    transform: scale(1); */
+/* .showhide-leave-from {
+  opacity: 1;
+    transform: scale(1);
 }
 
 .showhide-leave-to {
-  /* opacity: 0;
-    transform: scale(0.5); */
-}
+  opacity: 0;
+    transform: scale(0.5);
+} */
 </style>

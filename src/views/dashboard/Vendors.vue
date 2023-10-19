@@ -100,6 +100,7 @@
 import axios from "axios";
 import TheButton from "../../components/TheButton.vue";
 import TheModal from "../../components/TheModal.vue";
+import { showErrorMessage, showSuccessMessage } from '../../utils/functions';
 export default {
   data: () => ({
     showModal: false,
@@ -131,26 +132,22 @@ export default {
     addVendor() {
       this.looding = true;
       axios
-        .post("http://127.0.0.1:8000/api/auth/vendor/create", this.newVendor, {
+        .post("http://127.0.0.1:8000/api/vendor/create", this.newVendor, {
           headers: {
             authorization: localStorage.getItem("accessToken"),
           },
         })
         .then((res) => {
-          // console.log(res);
-          this.$eventBus.emit("toast", {
-            type: res.data.status,
-            message: res.data.message,
-          });
+          if(res.data.status === 'success'){
+            showSuccessMessage(res.data.message);
+          }else{
+            showErrorMessage(res.data.message);
+          }
           this.allVendors();
           this.resetForm();
         })
         .catch((err) => {
-          // console.log(err);
-          this.$eventBus.emit("toast", {
-            type: "Error",
-            message: err.response.data.message,
-          });
+          showErrorMessage(err.response.data.message);
         })
         .finally(() => {
           this.looding = false;
@@ -161,7 +158,7 @@ export default {
       this.editing = true;
       axios
         .post(
-          "http://127.0.0.1:8000/api/auth/vendor/update/" + this.editItem.id,
+          "http://127.0.0.1:8000/api/vendor/update/" + this.editItem.id,
           this.editItem,
           {
             headers: {
@@ -170,20 +167,16 @@ export default {
           }
         )
         .then((res) => {
-          // console.log(res);
-          this.$eventBus.emit("toast", {
-            type: res.data.status,
-            message: res.data.message,
-          });
+          if(res.data.status == "success"){
+            showSuccessMessage(res.data.message);
+          }else{
+            showErrorMessage(res.data.message);
+          }
           // this.resetForm();
           this.allVendors();
         })
         .catch((err) => {
-          // console.log(err);
-          this.$eventBus.emit("toast", {
-            type: "Error",
-            message: err.response.data.message,
-          });
+          showErrorMessage(err.response.data.message);
           this.allVendors();
         })
         .finally(() => {
@@ -195,7 +188,7 @@ export default {
       this.deleting = true;
       axios
         .delete(
-          "http://127.0.0.1:8000/api/auth/vendor/delete/" + this.editItem.id,
+          "http://127.0.0.1:8000/api/vendor/delete/" + this.editItem.id,
           {
             headers: {
               authorization: localStorage.getItem("accessToken"),
@@ -203,20 +196,16 @@ export default {
           }
         )
         .then((res) => {
-          // console.log(res);
-          this.$eventBus.emit("toast", {
-            type: res.data.status,
-            message: res.data.message,
-          });
+          if(res.data.status == "success"){
+            showSuccessMessage(res.data.message);
+          }else{
+            showErrorMessage(res.data.message);
+          }
           // this.resetForm();
           this.allVendors();
         })
         .catch((err) => {
-          // console.log(err);
-          this.$eventBus.emit("toast", {
-            type: "Error",
-            message: err.response.data.message,
-          });
+          showErrorMessage(err.response.data.message);
         })
         .finally(() => {
           this.deleting = false;
@@ -226,7 +215,7 @@ export default {
     allVendors() {
       this.gettingVendors = true;
       axios
-        .get("http://127.0.0.1:8000/api/auth/vendors", {
+        .get("http://127.0.0.1:8000/api/vendors", {
           headers: {
             authorization: localStorage.getItem("accessToken"),
           },
@@ -236,11 +225,7 @@ export default {
           this.vendors = res.data.data;
         })
         .catch((err) => {
-          // console.log(err);
-          this.$eventBus.emit("toast", {
-            type: "Error",
-            message: err.response.data.message,
-          });
+          showErrorMessage(err.response.data.message);
         })
         .finally(() => {
           this.gettingVendors = false;
