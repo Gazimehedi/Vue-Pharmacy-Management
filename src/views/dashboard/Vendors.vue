@@ -7,13 +7,15 @@
   <table class="mt-3" v-else>
     <thead>
       <tr>
+        <th>NO</th>
         <th>Name</th>
         <th>Description</th>
         <th>Action</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="vendor in vendors" :key="vendor.name">
+      <tr v-for="(vendor, index) in vendors" :key="vendor.name">
+        <td>{{ index + 1 }}</td>
         <td>{{ vendor.name }}</td>
         <td>{{ vendor.description }}</td>
         <td>
@@ -97,10 +99,10 @@
   </TheModal>
 </template>
 <script>
-import axios from "axios";
 import TheButton from "../../components/TheButton.vue";
 import TheModal from "../../components/TheModal.vue";
 import { showErrorMessage, showSuccessMessage } from '../../utils/functions';
+import privateService from "./../../services/privateService";
 export default {
   data: () => ({
     showModal: false,
@@ -131,12 +133,7 @@ export default {
     },
     addVendor() {
       this.looding = true;
-      axios
-        .post("http://127.0.0.1:8000/api/vendor/create", this.newVendor, {
-          headers: {
-            authorization: localStorage.getItem("accessToken"),
-          },
-        })
+      privateService.create('/vendor/create', this.newVendor)
         .then((res) => {
           if(res.data.status === 'success'){
             showSuccessMessage(res.data.message);
@@ -156,23 +153,13 @@ export default {
     },
     updateVendor() {
       this.editing = true;
-      axios
-        .post(
-          "http://127.0.0.1:8000/api/vendor/update/" + this.editItem.id,
-          this.editItem,
-          {
-            headers: {
-              authorization: localStorage.getItem("accessToken"),
-            },
-          }
-        )
+      privateService.update("/vendor/update/"+this.editItem.id, this.editItem)
         .then((res) => {
           if(res.data.status == "success"){
             showSuccessMessage(res.data.message);
           }else{
             showErrorMessage(res.data.message);
           }
-          // this.resetForm();
           this.allVendors();
         })
         .catch((err) => {
@@ -186,15 +173,7 @@ export default {
     },
     deleteVendor() {
       this.deleting = true;
-      axios
-        .delete(
-          "http://127.0.0.1:8000/api/vendor/delete/" + this.editItem.id,
-          {
-            headers: {
-              authorization: localStorage.getItem("accessToken"),
-            },
-          }
-        )
+      privateService.delete("/vendor/delete/" + this.editItem.id)
         .then((res) => {
           if(res.data.status == "success"){
             showSuccessMessage(res.data.message);
@@ -214,14 +193,8 @@ export default {
     },
     allVendors() {
       this.gettingVendors = true;
-      axios
-        .get("http://127.0.0.1:8000/api/vendors", {
-          headers: {
-            authorization: localStorage.getItem("accessToken"),
-          },
-        })
-        .then((res) => {
-          // console.log(res);
+      privateService.getAll('/vendors')
+      .then((res) => {
           this.vendors = res.data.data;
         })
         .catch((err) => {

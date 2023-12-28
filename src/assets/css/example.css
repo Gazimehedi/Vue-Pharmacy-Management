@@ -61,12 +61,24 @@ table {
 table th {
   background: #c7c7c7;
   padding: 7px 11px;
+  text-align: center;
+}
+table th:first-child {
   text-align: left;
+}
+table th:last-child {
+  text-align: right;
 }
 
 table td {
   padding: 5px 11px;
+  text-align: center;
+}
+table td:first-child {
   text-align: left;
+}
+table td:last-child {
+  text-align: right;
 }
 
 table tr:nth-child(odd) {
